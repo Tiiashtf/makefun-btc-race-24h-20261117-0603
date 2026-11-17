@@ -12,7 +12,7 @@
 //     unless the short trend is falling hard (SMA(60) more than TREND_BPS below
 //     SMA(240) — a genuinely falling market, not a dip). Buys with all cash.
 //   - Exit, the whole position: close back at or above SMA(240) + EXIT_BPS
-//     (40 bps), or a hard stop at STOP_BPS (200 bps) under the entry close, or
+//     (40 bps), or a hard stop at STOP_BPS (180 bps) under the entry close, or
 //     MAX_HOLD (360 bars = 6 h) without a reversion.
 //   - One order per reply at most, max_slippage_bps 300 (the largest 1-minute
 //     move on the dev window is ~45 bps, so a fill is never refused for this).
@@ -26,6 +26,17 @@
 // are positive on both 12-hour halves of the dev window (+$11.20 / +$3.11),
 // and the profit holds across a broad neighbourhood (N 120-360, entry 40-80
 // bps all clear +$7), so it is a plateau, not a tuned wiggle.
+//
+// Improvement round (2026-11-17): the stop was tightened 200 -> 180 bps.
+// Tested variants (official local grade): stop 180, exit 50/60, trend 60 and
+// max-hold 240 all leave the dev grade identical (+$14.32, 4 trades) — the
+// stop never fires on the dev window, all four trades exit on reversion —
+// while exit 20 (+$7.90), entry 70 (+$12.29), entry 60 (+$9.98), N 120
+// (+$7.06), N 180 (+$9.25), N 300 (+$13.85), N 360 (+$10.75), entry 90
+// (+$4.03), trend 30 (+$11.20) and a two-bar entry confirmation (+$3.09,
+// 2 trades) all score worse. So the baseline parameters are kept and only
+// the stop moves: on the unseen race window, a dip that keeps falling instead
+// of reverting now costs 20 bps less per stopped trade.
 
 import { runBars, type BarsState, type Batch, type OrderInput } from './vendor/makefun-bars.ts';
 
@@ -39,7 +50,7 @@ const ENTRY_BPS = 80;
 /** Exit: close this many bps above SMA(N). */
 const EXIT_BPS = 40;
 /** Hard stop: close this many bps under the entry close. */
-const STOP_BPS = 200;
+const STOP_BPS = 180;
 /** Skip the entry while the short trend sits this many bps under the mean. */
 const TREND_BPS = 50;
 /** Give up on a position after this many bars without a reversion. */

@@ -20,8 +20,10 @@ trades). So this bot trades the reversion, not the trend:
   short trend is falling hard (SMA(60) more than 50 bps below SMA(240) — a
   genuinely falling market, not a dip). Buys with all cash.
 - **Exit, the whole position:** close back at or above SMA(240) + 40 bps, or
-  a hard stop 200 bps under the entry close, or 360 bars (6 h) without a
-  reversion.
+  a hard stop 180 bps under the entry close, or 360 bars (6 h) without a
+  reversion. (The stop was tightened from 200 bps in an improvement round:
+  it never fires on the dev window, so the grade is unchanged, but a dip
+  that keeps falling on the unseen race window now costs 20 bps less.)
 - At most one order per reply; `max_slippage_bps` 300.
 
 ## Results (dev window, official local grade)
